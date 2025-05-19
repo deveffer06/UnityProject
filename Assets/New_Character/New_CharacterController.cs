@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 [RequireComponent (typeof(CharacterController))]
 
 public class New_CharacterController : MonoBehaviour
@@ -47,7 +47,7 @@ public class New_CharacterController : MonoBehaviour
 
     void HandleMovement() 
     {
-        IsGrounded = characterController.isGrounded; // Verificaci�n de tocar o no el suelo
+        IsGrounded = characterController.isGrounded; // Verificación de tocar o no el suelo
 
 
         if(IsGrounded && velocity.y < 0)

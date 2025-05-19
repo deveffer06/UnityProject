@@ -19,7 +19,6 @@ public class MovingPlatform : MonoBehaviour
         initialPosition = transform.position;
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         float currentHeight = transform.position.y;
