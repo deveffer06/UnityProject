@@ -2,52 +2,67 @@ using UnityEngine;
 
 public class JetpackController : MonoBehaviour
 {
-    public float maxFuel = 4f;
-    public float thrustForce = 0.5f;
-    public Rigidbody rigidBody;
-    public Transform groundedTransform;
-    public ParticleSystem effect;
+    private New_CharacterController characterController;
 
-    private float currentFuel;
+    public float jetpackAcceleration = 25f;
+    [Range(0f, 1f)]
+    public float jetpackDownwardVelocityCancelingFactor = 0.75f;
+    public float consumeDuration = 1.5f;
+    public float refillDurationGrounded = 2f;
+    public float refillDurationTheAir = 5f;
+    public float refillDelay = 1f;
+
+    public float currentFillRatio = 1f;
+    private float lastTimeOfUse;
 
     void Start()
     {
-        currentFuel = maxFuel;
+        characterController = GetComponent<New_CharacterController>();
     }
 
     void Update()
     {
-        // Puedes mantener este bloque si también quieres que funcione por input
-        if (Input.GetAxis("Jump") > 0f)
-        {
-            UseJetpack();
-        }
-        else
-        {
-            TryRecharge();
-        }
+        // Solo permitir usar jetpack si el jugador lo tiene
+        if (!characterController.hasJetpack)
+            return;
+
+        UseJetpack();
     }
 
     public void UseJetpack()
     {
-        if (currentFuel > 0f)
-        {
-            currentFuel -= Time.deltaTime;
-            rigidBody.AddForce(rigidBody.transform.up * thrustForce, ForceMode.Impulse);
-            if (!effect.isPlaying) effect.Play();
-        }
-    }
+        bool jetpackIsInUse = characterController.hasJetpack &&
+            currentFillRatio > 0f && Input.GetKey(KeyCode.Space);
 
-    public void TryRecharge()
-    {
-        if (Physics.Raycast(groundedTransform.position, Vector3.down, 0.05f, LayerMask.GetMask("Grounded")) && currentFuel < maxFuel)
+        if (jetpackIsInUse)
         {
-            currentFuel += Time.deltaTime;
-            if (effect.isPlaying) effect.Stop();
+            lastTimeOfUse = Time.time;
+
+            float totalAcceleration = jetpackAcceleration;
+            totalAcceleration += Mathf.Abs(characterController.gravity);
+
+            if (characterController.velocity.y < 0f)
+            {
+                totalAcceleration += ((-characterController.velocity.y / Time.deltaTime) * jetpackDownwardVelocityCancelingFactor);
+            }
+
+            Vector3 modifiedVelocity = characterController.velocity;
+            modifiedVelocity.y += totalAcceleration * Time.deltaTime;
+            characterController.velocity = modifiedVelocity;
+
+            currentFillRatio -= Time.deltaTime / consumeDuration;
         }
         else
         {
-            if (effect.isPlaying) effect.Stop();
+            if (Time.time - lastTimeOfUse >= refillDelay)
+            {
+                float refillRate = 1f / (characterController.IsGrounded ? refillDurationGrounded : refillDurationTheAir);
+                currentFillRatio += Time.deltaTime * refillRate;
+            }
+
+            currentFillRatio = Mathf.Clamp01(currentFillRatio);
         }
     }
 }
+
+
