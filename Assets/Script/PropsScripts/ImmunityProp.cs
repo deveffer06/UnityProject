@@ -6,6 +6,7 @@ public class ImmunityProp : MonoBehaviour
     public float immunityDuration = 10f;
     public GameObject pickupEffect;
 
+
     private void OnTriggerEnter(Collider other)
     {
         PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();

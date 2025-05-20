@@ -9,19 +9,31 @@ public class Respawn_New : MonoBehaviour
     {
         if (other.CompareTag("Player") && respawnPoint != null)
         {
-            CharacterController controller = other.GetComponent<CharacterController>();
-            if (controller != null)
+            if (other.CompareTag("Player") && respawnPoint != null)
             {
-                controller.enabled = false;
-                other.transform.position = respawnPoint.position;
-                controller.enabled = true;
+                // Verifica si tiene PlayerHealth y si es inmune
+                PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+                if (playerHealth != null && playerHealth.isImmune)
+                {
+                    Debug.Log("Jugador es inmune, no se respawnea.");
+                    return;
+                }
 
-                Debug.Log("Jugador ha sido respawneado");
-            }
-            else
-            {
-                other.transform.position = respawnPoint.position;
-                Debug.Log("Jugador sin characterController fue movido al respawn");
+                CharacterController controller = other.GetComponent<CharacterController>();
+                if (controller != null)
+                {
+                    controller.enabled = false;
+                    other.transform.position = respawnPoint.position;
+                    controller.enabled = true;
+
+                    Debug.Log("Jugador ha sido respawneado");
+                }
+                else
+                {
+                    other.transform.position = respawnPoint.position;
+                    Debug.Log("Jugador sin characterController fue movido al respawn");
+                }
+
             }
         }
     }

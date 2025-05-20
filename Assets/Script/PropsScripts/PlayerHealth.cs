@@ -8,7 +8,7 @@ public class PlayerHealth : MonoBehaviour
     private float currentHealth;
     
     [Header("Configuración de Inmunidad")]
-    public bool isImmune = false;
+    public bool isImmune;
     
     [Tooltip("Material para mostrar cuando el jugador está inmune")]
     public Material immunityMaterial;
