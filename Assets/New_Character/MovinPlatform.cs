@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour
 {
-    [Header("COnfiguración de la plataforma")]
-    [Tooltip("Altura mínima de la plataforma en unds del mundo")]
+    [Header("COnfiguraciï¿½n de la plataforma")]
+    [Tooltip("Altura mï¿½nima de la plataforma en unds del mundo")]
     [SerializeField] private float minHeight = 0f;
-    [Tooltip("Altura máxima de la plataforma en unds del mundo")]
+    [Tooltip("Altura mï¿½xima de la plataforma en unds del mundo")]
     [SerializeField] private float maxHeight = 0f;
     [Tooltip("Velocidad de movimiento en unds / s")]
     [SerializeField] private float speed = 2f;

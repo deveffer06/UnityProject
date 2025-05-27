@@ -25,7 +25,7 @@ public class GhostPowerUp: MonoBehaviour
     private IEnumerator GhostRoutine()
     {
         isGhost = true;
-        fixedHeight = transform.position.y;
+        fixedHeight = 0f;
         
         float timer = 0f;
         while (timer < ghostDuration)
