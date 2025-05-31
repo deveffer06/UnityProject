@@ -1,121 +1,107 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [Header("Configuración de Salud")]
+    [Header("Health Settings")]
     public float maxHealth = 100f;
     private float currentHealth;
     
-    [Header("Configuración de Inmunidad")]
+    [Header("Immunity Settings")]
     public bool isImmune;
+    public float immunityDuration = 10f;
     
-    [Tooltip("Material para mostrar cuando el jugador está inmune")]
+    [Header("UI Settings")]
+    public Image immunityBar; // Asignar desde el inspector
+    
+    [Header("Visual Effects")]
     public Material immunityMaterial;
     private Material originalMaterial;
-    
-    [Tooltip("Renderer del personaje para cambiar material")]
     public Renderer playerRenderer;
-    
-    [Header("Efectos Visuales")]
-    [Tooltip("Prefab de efecto para cuando inicia la inmunidad")]
     public GameObject immunityStartEffect;
-    
-    [Tooltip("Prefab de efecto para cuando termina la inmunidad")]
     public GameObject immunityEndEffect;
     
     private Coroutine immunityCoroutine;
+    private float currentImmunityTime;
 
     void Start()
     {
-        // Inicializar la salud
         currentHealth = maxHealth;
-        
-        // Guardar el material original si tenemos un renderer
         if (playerRenderer != null)
-        {
             originalMaterial = playerRenderer.material;
-        }
+        
+        if (immunityBar != null)
+            immunityBar.gameObject.SetActive(false);
     }
 
-    // Función llamada cuando el jugador recibe daño
     public void TakeDamage(float damage)
     {
-        // Si el jugador está inmune, no recibe daño
         if (isImmune)
         {
             Debug.Log("¡Inmune al daño!");
             return;
         }
         
-        // Aplicar daño
         currentHealth -= damage;
         Debug.Log($"Salud actual: {currentHealth}");
         
-        // Comprobar si el jugador ha muerto
-        if (currentHealth == 0)
-        {
+        if (currentHealth <= 0)
             Die();
-        }
     }
 
-    // Función para activar la inmunidad
     public void ActivateImmunity(float duration)
     {
-        // Si ya hay una coroutine de inmunidad, detenerla
         if (immunityCoroutine != null)
-        {
             StopCoroutine(immunityCoroutine);
-        }
         
-        // Iniciar nueva coroutine de inmunidad
         immunityCoroutine = StartCoroutine(ImmunityRoutine(duration));
     }
 
-    // Coroutine para manejar la inmunidad
     private IEnumerator ImmunityRoutine(float duration)
     {
-        // Activar inmunidad
         isImmune = true;
-        Debug.Log($"¡Inmunidad activada por {duration} segundos!");
+        currentImmunityTime = duration;
         
-        // Cambiar material si tenemos uno configurado
+        if (immunityBar != null)
+        {
+            immunityBar.gameObject.SetActive(true);
+            immunityBar.fillAmount = 1f;
+        }
+        
         if (playerRenderer != null && immunityMaterial != null)
-        {
             playerRenderer.material = immunityMaterial;
-        }
         
-        // Instanciar efecto de inicio si existe
         if (immunityStartEffect != null)
-        {
             Instantiate(immunityStartEffect, transform.position, Quaternion.identity);
+        
+        while (currentImmunityTime > 0f)
+        {
+            currentImmunityTime -= Time.deltaTime;
+            
+            if (immunityBar != null)
+                immunityBar.fillAmount = currentImmunityTime / duration;
+            
+            yield return null;
         }
         
-        // Esperar la duración
-        yield return new WaitForSeconds(duration);
-        
-        // Desactivar inmunidad
         isImmune = false;
-        Debug.Log("Inmunidad desactivada");
         
-        // Restaurar material original
         if (playerRenderer != null && originalMaterial != null)
-        {
             playerRenderer.material = originalMaterial;
-        }
         
-        // Instanciar efecto de fin si existe
         if (immunityEndEffect != null)
-        {
             Instantiate(immunityEndEffect, transform.position, Quaternion.identity);
-        }
+        
+        if (immunityBar != null)
+            immunityBar.gameObject.SetActive(false);
         
         immunityCoroutine = null;
     }
 
-    // Función llamada cuando el jugador muere
     private void Die()
     {
         Debug.Log("El jugador ha muerto");
+        // Aquí iría la lógica de muerte del jugador
     }
 }
